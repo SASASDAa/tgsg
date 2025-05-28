@@ -1,0 +1,342 @@
+
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "ws": "https://esm.sh/ws@^8.18.2",
+    "express": "https://esm.sh/express@^5.1.0",
+    "http": "https://esm.sh/http@^0.0.1-security",
+    "cors": "https://esm.sh/cors@^2.8.5"
+  }
+}
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>TeleСards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              // CSS Variable driven theme colors
+              'app-primary': 'var(--app-primary-color)',
+              'app-bg': 'var(--app-bg-color)',
+              'app-bg-secondary': 'var(--app-bg-secondary-color)',
+              'app-panel': 'var(--app-panel-color)',
+              'app-text': 'var(--app-text-color)',
+              'app-text-secondary': 'var(--app-text-secondary-color)',
+              'app-accent': 'var(--app-accent-color)',
+              'app-card-border': 'var(--app-card-border-color)',
+
+              // Original DarkBorn colors (used for default theme variables)
+              'darkborn-primary': '#F59E0B', 
+              'darkborn-accent': '#EF4444', 
+              'darkborn-card-border': '#475569',
+
+              // Theme-specific palettes (will be assigned to CSS variables)
+              'telegram-primary': '#2AABEE',
+              'telegram-bg': '#17212B',
+              'telegram-bg-secondary': '#222E3A',
+              'telegram-panel': '#222E3A',
+              'telegram-text': '#FFFFFF',
+              'telegram-text-secondary': '#A3AAB3',
+              'telegram-accent': '#50A8E0',
+              'telegram-card-border': '#3A4C5E',
+
+              'doge-primary': '#C2A633',
+              'doge-bg': '#2C2C2C',
+              'doge-bg-secondary': '#3E3E3E',
+              'doge-panel': '#4A4A4A',
+              'doge-text': '#FFFFFF',
+              'doge-text-secondary': '#B0B0B0',
+              'doge-accent': '#D4B74A',
+              'doge-card-border': '#5E5E5E',
+
+              'elon-primary': '#E82127',
+              'elon-bg': '#000000',
+              'elon-bg-secondary': '#1C1C1E',
+              'elon-panel': '#2C2C2E',
+              'elon-text': '#F5F5F7',
+              'elon-text-secondary': '#8A8A8E',
+              'elon-accent': '#0A84FF',
+              'elon-card-border': '#4A4A4E',
+
+              'ton-primary': '#0088CC',
+              'ton-bg': '#F3F3F3',
+              'ton-bg-secondary': '#FFFFFF',
+              'ton-panel': '#FFFFFF',
+              'ton-text': '#000000',
+              'ton-text-secondary': '#8E8E93',
+              'ton-accent': '#00A3E0',
+              'ton-card-border': '#D1D1D6',
+
+
+              // Utility colors (mostly unchanged)
+              'common-rarity': '#A0AEC0',
+              'rare-rarity': '#63B3ED',
+              'epic-rarity': '#B794F4',
+              'legendary-rarity': '#F6AD55',
+
+              'mana-gem-filled': '#2DD4BF',
+              'mana-gem-empty': '#334155',
+              'mana-gem-locked': '#1E293B',
+              'mana-gem-border': '#5EEAD4',
+
+              'board-surface-player': 'var(--app-board-surface-player-color)', 
+              'board-surface-opponent': 'var(--app-board-surface-opponent-color)',
+              'hero-health-bar': '#DC2626',
+              'hero-health-bg': '#4B5563',
+              'turn-indicator-active': '#34D399',
+              'turn-indicator-inactive': '#6B7280',
+
+              'rune-gold': '#FBBF24',
+              'mystic-blue': '#60A5FA',
+              'shadow-purple': '#3730A3',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Cinzel', 'serif'],
+              body: ['Roboto', 'sans-serif'],
+            },
+            keyframes: {
+              scaleInFadeIn: { 
+                '0%': { opacity: '0', transform: 'scale(0.5) translateY(10px)' },
+                '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+              },
+              pulseGlow: {
+                '0%, 100%': { opacity: '1', filter: 'drop-shadow(0 0 2px var(--app-primary-color))' },
+                '50%': { opacity: '0.85', filter: 'drop-shadow(0 0 5px var(--app-primary-color))' },
+              },
+              manaFill: {
+                '0%': { opacity: '0.3', transform: 'scale(0.8)' },
+                '100%': { opacity: '1', transform: 'scale(1)' },
+              },
+              turnAnnounce: {
+                '0%': { opacity: '0', transform: 'scale(1.3) translateY(15px)'},
+                '50%': { opacity: '1', transform: 'scale(1) translateY(0)'},
+                '100%': { opacity: '0', transform: 'scale(0.7) translateY(-15px)'},
+              },
+              cardFlingToSlot: { 
+                '0%': { transform: 'var(--card-fling-start-transform)', opacity: '1', boxShadow: '0 8px 12px -2px rgba(0,0,0,0.3), 0 3px 5px -1px rgba(0,0,0,0.15)' },
+                '100%': { transform: 'var(--card-fling-end-transform)', opacity: '1', boxShadow: '0 1px 2px rgba(0,0,0,0.2), 0 1px 1px rgba(0,0,0,0.1)' }
+              },
+              quickImpactFlash: { 
+                '0%, 100%': { filter: 'brightness(1) saturate(1)' },
+                '50%': { filter: 'brightness(1.7) saturate(2) drop-shadow(0 0 5px var(--app-accent-color))' }
+              },
+              minionBoardDeathFade: { 
+                '0%': { opacity: '1', transform: 'scale(1)' },
+                '100%': { opacity: '0', transform: 'scale(0.4) rotate(-10deg) translateY(10px)' }
+              },
+              heroDamageFlash: { 
+                 '0%, 100%': { transform: 'scale(1)', filter: 'brightness(1)' },
+                 '25%': { transform: 'scale(1.02) translateX(-1px)', filter: 'brightness(1.5) saturate(0.4)' },
+                 '50%': { transform: 'scale(0.98) translateX(1px)', filter: 'brightness(1.3) saturate(0.6)' },
+              },
+              quickAttackPulse: { 
+                '0%, 100%': { transform: 'scale(1) translateY(0)', filter: 'brightness(1)'},
+                '50%': { transform: 'scale(1.08) translateY(-2px)', filter: 'brightness(1.2) drop-shadow(0 0 4px var(--app-primary-color))'}
+              },
+              pulseBurnout: { // Burnout mode animation
+                '0%, 100%': { boxShadow: '0 0 8px 2px rgba(255, 0, 0, 0.5), inset 0 0 5px rgba(255,0,0,0.2)' },
+                '50%': { boxShadow: '0 0 15px 5px rgba(255, 0, 0, 0.8), inset 0 0 10px rgba(255,0,0,0.4)' },
+              },
+              // Chest opening animations
+              shake: { '0%, 100%': { transform: 'translateX(0)' }, '20%, 60%': { transform: 'translateX(-5px)' }, '40%, 80%': { transform: 'translateX(5px)' } },
+              cardFlyIn: { '0%': { opacity: '0', transform: 'translateY(50px) scale(0.8) rotateZ(-15deg)' }, '100%': { opacity: '1', transform: 'translateY(0) scale(1) rotateZ(0deg)' } },
+              dustAppear: { '0%': { opacity: '0', transform: 'scale(0.5)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+              chestGlowPulse: { 
+                '0%, 100%': { boxShadow: '0 0 15px 5px var(--app-primary-color), 0 0 25px 10px var(--app-primary-color-shadow)' }, 
+                '50%': { boxShadow: '0 0 25px 10px var(--app-primary-color), 0 0 40px 15px var(--app-primary-color-shadow)' } 
+              },
+            },
+            animation: {
+              'scale-in-fade-in': 'scaleInFadeIn 0.25s ease-out forwards',
+              'pulse-glow': 'pulseGlow 1.6s infinite ease-in-out',
+              'mana-fill': 'manaFill 0.25s ease-out forwards',
+              'turn-announce': 'turnAnnounce 1.3s ease-in-out forwards',
+              'card-fling': 'cardFlingToSlot 0.3s cubic-bezier(0.2, 0.7, 0.3, 1) forwards', 
+              'quick-impact-flash': 'quickImpactFlash 0.2s ease-out forwards',
+              'minion-board-death': 'minionBoardDeathFade 0.3s ease-in forwards',
+              'hero-damage-flash': 'heroDamageFlash 0.25s ease-in-out forwards',
+              'quick-attack-pulse': 'quickAttackPulse 0.25s ease-out forwards',
+              'pulse-burnout': 'pulseBurnout 1.5s infinite ease-in-out', // Burnout animation
+              // Chest opening animations
+              'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+              'card-fly-in': 'cardFlyIn 0.5s ease-out forwards',
+              'dust-appear': 'dustAppear 0.3s ease-out forwards',
+              'chest-glow-pulse': 'chestGlowPulse 1.5s infinite ease-in-out',
+            },
+            boxShadow: {
+              'glow-primary': '0 0 10px 2px var(--app-primary-color-shadow, rgba(245, 158, 11, 0.45))', 
+              'glow-mystic': '0 0 10px 2px rgba(45, 212, 191, 0.35)', 
+              'hero-portrait': '0 4px 15px rgba(0,0,0,0.5), inset 0 0 8px rgba(0,0,0,0.35)',
+              'mana-gem': 'inset 0 1px 1px rgba(255,255,255,0.2), 0 1px 3px rgba(0,0,0,0.45)',
+              'card-on-board': '0px 1px 3px rgba(0, 0, 0, 0.45), 0px 1px 1px rgba(0, 0, 0, 0.35)',
+              'card-in-hand-hover': '0px 8px 20px var(--app-mystic-glow-color, rgba(45, 212, 191, 0.25))', 
+              'top-lg': '0 -5px 12px -2px rgba(0, 0, 0, 0.2), 0 -3px 5px -3px rgba(0, 0, 0, 0.1)'
+            },
+             dropShadow: {
+              'md-rune-gold': '0 3px 2px rgba(251, 191, 36, 0.4)',
+              'lg-mystic-blue': '0 6px 8px rgba(96, 165, 250, 0.5)',
+            }
+          },
+        },
+        plugins: [
+          function({ addUtilities, theme }) {
+            const newUtilities = {
+              '.line-clamp-1': { overflow: 'hidden', display: '-webkit-box', '-webkit-line-clamp': '1', '-webkit-box-orient': 'vertical', },
+              '.line-clamp-2': { overflow: 'hidden', display: '-webkit-box', '-webkit-line-clamp': '2', '-webkit-box-orient': 'vertical', },
+              '.line-clamp-3': { overflow: 'hidden', display: '-webkit-box', '-webkit-line-clamp': '3', '-webkit-box-orient': 'vertical', },
+              '.text-shadow': { textShadow: '1px 1px 1px rgba(0,0,0,0.6)', },
+              '.text-shadow-md': { textShadow: '1px 1px 2px rgba(0,0,0,0.45), 0 0 4px rgba(0,0,0,0.25)', },
+              '.text-shadow-lg': { textShadow: '2px 2px 4px rgba(0,0,0,0.55)', },
+              '.bg-gradient-dark-panel': { background: `linear-gradient(145deg, var(--app-panel-color) 0%, var(--app-bg-secondary-color) 100%)`},
+              '.bg-gradient-mystic-glow': { background: `radial-gradient(ellipse at center, var(--app-mystic-glow-color, rgba(45, 212, 191, 0.15)) 0%, transparent 65%)`},
+            }
+            addUtilities(newUtilities, ['responsive', 'hover'])
+          }
+        ]
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;800&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      :root, [data-theme="default"] {
+        --app-primary-color: #F59E0B;
+        --app-bg-color: #1E293B;
+        --app-bg-secondary-color: #334155;
+        --app-panel-color: #0F172A;
+        --app-text-color: #E2E8F0;
+        --app-text-secondary-color: #94A3B8;
+        --app-accent-color: #EF4444;
+        --app-card-border-color: #475569;
+
+        /* Theme specific primary color shadows for glow effects */
+        --app-primary-color-shadow: rgba(245, 158, 11, 0.35); 
+        --app-mystic-glow-color: rgba(45, 212, 191, 0.15); /* Default for mystic glow */
+        
+        /* Default board surface colors - can be overridden by themes */
+        --app-board-surface-player-color: #2c3e50; /* Darker slate/blue */
+        --app-board-surface-opponent-color: #34495e; /* Slightly lighter slate/blue */
+      }
+      [data-theme="telegram"] {
+        --app-primary-color: #2AABEE;
+        --app-bg-color: #17212B;
+        --app-bg-secondary-color: #222E3A;
+        --app-panel-color: #222E3A;
+        --app-text-color: #FFFFFF;
+        --app-text-secondary-color: #A3AAB3;
+        --app-accent-color: #50A8E0;
+        --app-card-border-color: #3A4C5E;
+        --app-primary-color-shadow: rgba(42, 171, 238, 0.35);
+        --app-mystic-glow-color: rgba(80, 168, 224, 0.15);
+        --app-board-surface-player-color: #1c2a38; 
+        --app-board-surface-opponent-color: #253342;
+      }
+      [data-theme="doge"] {
+        --app-primary-color: #C2A633;
+        --app-bg-color: #2C2C2C;
+        --app-bg-secondary-color: #3E3E3E;
+        --app-panel-color: #4A4A4A;
+        --app-text-color: #FFFFFF;
+        --app-text-secondary-color: #B0B0B0;
+        --app-accent-color: #D4B74A;
+        --app-card-border-color: #5E5E5E;
+        --app-primary-color-shadow: rgba(194, 166, 51, 0.35);
+        --app-mystic-glow-color: rgba(212, 183, 74, 0.15);
+        --app-board-surface-player-color: #3a3a3a; 
+        --app-board-surface-opponent-color: #454545;
+      }
+      [data-theme="elon"] {
+        --app-primary-color: #E82127;
+        --app-bg-color: #000000;
+        --app-bg-secondary-color: #1C1C1E;
+        --app-panel-color: #2C2C2E;
+        --app-text-color: #F5F5F7;
+        --app-text-secondary-color: #8A8A8E;
+        --app-accent-color: #0A84FF;
+        --app-card-border-color: #4A4A4E;
+        --app-primary-color-shadow: rgba(232, 33, 39, 0.35);
+        --app-mystic-glow-color: rgba(10, 132, 255, 0.15);
+        --app-board-surface-player-color: #121212; 
+        --app-board-surface-opponent-color: #1e1e1e;
+      }
+      [data-theme="ton"] {
+        --app-primary-color: #0088CC;
+        --app-bg-color: #F3F3F3;
+        --app-bg-secondary-color: #FFFFFF;
+        --app-panel-color: #FFFFFF;
+        --app-text-color: #000000;
+        --app-text-secondary-color: #8E8E93;
+        --app-accent-color: #00A3E0;
+        --app-card-border-color: #D1D1D6;
+        --app-primary-color-shadow: rgba(0, 136, 204, 0.25);
+        --app-mystic-glow-color: rgba(0, 163, 224, 0.1);
+        --app-board-surface-player-color: #e9e9eb; 
+        --app-board-surface-opponent-color: #f0f0f2;
+      }
+
+      /* Basic scrollbar styling for custom-scrollbar class */
+      .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: var(--app-bg-secondary-color); border-radius: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--app-primary-color); border-radius: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--app-accent-color); }
+      .custom-scrollbar { scrollbar-width: thin; scrollbar-color: var(--app-primary-color) var(--app-bg-secondary-color); }
+
+      /*Mana Gem specific styling*/
+      .mana-gem-shape { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+      .end-turn-button-active-shape { clip-path: polygon(0% 0%, 100% 15%, 100% 85%, 0% 100%); }
+      .end-turn-button-inactive-shape { clip-path: polygon(0% 15%, 100% 0%, 100% 100%, 0% 85%); }
+      .minion-board-slot-highlight { background-color: rgba(245, 158, 11, 0.2); border: 1px dashed var(--app-primary-color); }
+      .game-board-container-no-scrollbar::-webkit-scrollbar { display: none; }
+      .game-board-container-no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
+      .game-board-bg {
+        background-image: 
+          radial-gradient(circle at 10% 20%, rgba(var(--app-primary-rgb, 245, 158, 11), 0.08) 0%, transparent 30%),
+          radial-gradient(circle at 90% 80%, rgba(var(--app-accent-rgb, 239, 68, 68), 0.07) 0%, transparent 30%),
+          linear-gradient(135deg, var(--app-bg-secondary-color) 0%, var(--app-bg-color) 70%);
+        background-blend-mode: screen, screen, normal;
+      }
+      /* Fallback for rgb variables not being defined everywhere */
+      body {
+        --app-primary-rgb: 245, 158, 11; /* Default fallback for DarkBorn */
+        --app-accent-rgb: 239, 68, 68;  /* Default fallback for DarkBorn */
+      }
+      [data-theme="telegram"] { --app-primary-rgb: 42, 171, 238; --app-accent-rgb: 80, 168, 224; }
+      [data-theme="doge"] { --app-primary-rgb: 194, 166, 51; --app-accent-rgb: 212, 183, 74; }
+      [data-theme="elon"] { --app-primary-rgb: 232, 33, 39; --app-accent-rgb: 10, 132, 255; }
+      [data-theme="ton"] { --app-primary-rgb: 0, 136, 204; --app-accent-rgb: 0, 163, 224; }
+
+
+      .card-drag-wrapper {
+        backface-visibility: hidden; /* Attempt to improve rendering performance during transform */
+        -webkit-backface-visibility: hidden;
+      }
+
+      /* Add any global styles or critical fixes here */
+      body {
+        font-family: 'Inter', sans-serif;
+        overscroll-behavior-y: contain; /* Prevent pull-to-refresh on mobile */
+      }
+      #root {
+        height: 100vh; /* Ensure root takes full viewport height */
+        width: 100vw; /* Ensure root takes full viewport width */
+        display: flex; /* Make it a flex container if App is the only child */
+        flex-direction: column; /* Standard for full-page apps */
+      }
+    </style>
+  </head>
+  <body class="bg-app-bg text-app-text m-0 p-0 overflow-hidden">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
+<link rel="stylesheet" href="index.css">
+<script src="index.tsx" type="module"></script>
