@@ -1,4 +1,0 @@
-
-aiogram>=3.0.0
-pydantic-settings>=2.0.0
-# Add other dependencies your bot might need, e.g., for database interaction
